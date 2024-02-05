@@ -9,7 +9,7 @@ env:
   MYSQL_DATABASE: restapi
   MYSQL_USER: test_user
   MYSQL_PASSWORD: password
-  MYSQL_HOST: mysql-master
+  MYSQL_HOST: localhost
   
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
           --health-timeout=5s
           --health-retries=3
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Install packages
         run: "npm install"
       # - name: Setup Database
