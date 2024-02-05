@@ -10,55 +10,38 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 14 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14 
 
-    - name: Install dependencies
-      run: npm install
-        
-    - name: setup .env file
-      run: |
-        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-        echo "PORT=${{ secrets.PORT }}" >> .env
-        cat .env
+      - name: Install dependencies
+        run: npm install
 
-       
-    - name: configuremysql
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y curl
-        sudo systemctl start mysql
-        sudo systemctl status mysql
-        mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
-        
+      - name: Setup .env file
+        run: |
+          echo "DB_USER=root" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "DB_NAME=testdb" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "PORT=3000" >> .env
 
-  #  asd
+      - name: Wait for MySQL
+        run: until mysqladmin ping -h "127.0.0.1" --silent; do sleep 1; done
 
-    - name: test app
-      run : npm test
-    
-# checking CI command on PR - 1.2.3
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-  
+      - name: Test App
+        run: npm test
