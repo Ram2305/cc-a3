@@ -10,12 +10,21 @@ jobs:
       DB_USER: ${{ secrets.DB_USER}}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD}}
       DB_HOST: ${{ secrets.DB_HOST}}
-      DB_DIALECT: ${{ secrets.DB_DIALECT}}
+      # DB_DIALECT: ${{ secrets.DB_DIALECT}}
       PORT: ${{ secrets.PORT}}
       TOKEN_SECRET: ${{ secrets.TOKEN_SECRET}}
 
     runs-on: ubuntu-latest
-
+    
+    services:
+      mysql:
+        image: mysql:5.7  # You can specify the version of MySQL you need
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD}}  # Set the root password here
+          MYSQL_DATABASE: ${{ secrets.DB_NAME}}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - name: download the code from repo
         uses: actions/checkout@v4
@@ -34,11 +43,13 @@ jobs:
       - name: install dependencies
         run: npm install
       
-      - name: configuremysql
-        run: |
+      # - name: configuremysql
+      #   run: |
 
-           sudo apt-get update
-           sudo apt-get install -y curl
-           sudo systemctl start mysql
-           sudo systemctl status mysql
-           sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
+      #      sudo apt-get update
+      #      sudo apt-get install -y curl
+      #      sudo systemctl start mysql
+      #      sudo systemctl status mysql
+      #      sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
+      - name: start the application
+        run: npm start
