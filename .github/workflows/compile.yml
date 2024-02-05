@@ -67,7 +67,7 @@ jobs:
       #       sleep 1
       #     done
 
-      - name: Setup Database
+      - name: Setup Databases
         run: "npm run migrations"
 
       - name: Run Tests
