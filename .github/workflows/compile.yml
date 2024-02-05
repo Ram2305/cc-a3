@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install packages
         run: "npm install"
-      - name: Setup Database
-        run: "npm run migrations"
+      # - name: Setup Database
+      #   run: "npm run migrations"
       - name: Run Tests
         run: "npm run test"
