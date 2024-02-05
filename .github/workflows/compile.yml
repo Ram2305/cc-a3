@@ -8,7 +8,7 @@ jobs:
     env:
       DB_NAME: ${{ secrets.DB_NAME}}
       DB_USER: ${{ secrets.DB_USER}}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD}}
+      DB_PASSWORD: root
       DB_HOST: '127.0.0.1'
       DB_DIALECT: 'mysql'
       PORT: ${{ secrets.PORT}}
@@ -20,10 +20,11 @@ jobs:
       mysql:
         image: mysql:5.7  # You can specify the version of MySQL you need
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD}}  # Set the root password here
+          MYSQL_ROOT_PASSWORD: root  # Set the root password here
           MYSQL_DATABASE: ${{ secrets.DB_NAME}}
         ports:
           - 3306:3306
+       
     steps:
       - name: download the code from repo
         uses: actions/checkout@v4
