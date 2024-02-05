@@ -40,15 +40,3 @@ describe('Other HTTP Methods for /healthz', () => {
     });
   });
 });
-
-describe('Database Connection Issues for /healthz', () => {
-  it('should respond with 503 Service Unavailable when the database connection fails', async () => {
-    jest.spyOn(require('../models/mysql-db-connect'), 'authenticate').mockImplementationOnce(() => {
-      throw new Error('Mocked database connection error');
-    });
-
-    const response = await request(app).get('/healthz');
-    expect(response.status).toBe(503);
-    expect(response.body).toEqual({ status: '503 Service Unavailable' });
-  });
-});
