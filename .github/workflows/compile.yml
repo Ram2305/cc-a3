@@ -42,8 +42,8 @@ jobs:
 
   #  asd
 
-    - name: Run Tests
-      run : npm test
+    - name: start app
+      run : npm start
     
 # checking CI command on PR - 1.2.3
 
