@@ -42,13 +42,21 @@ jobs:
       - name: install dependencies
         run: npm install
       
-      # - name: configuremysql
-      #   run: |
+      - name: configuremysql
+        run: |
 
-      #      sudo apt-get update
-      #      sudo apt-get install -y curl
-      #      sudo systemctl start mysql
-      #      sudo systemctl status mysql
-      #      sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
-      - name: start the application
-        run: npm start
+           sudo apt-get update
+           sudo apt-get install -y curl
+           sudo systemctl start mysql
+           sudo systemctl status mysql
+           sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
+
+      - name: Wait for MySQL
+        run: |
+          until nc -z 127.0.0.1 3306; do
+            echo "Waiting for MySQL..."
+            sleep 1
+          done
+
+      - name: Run Tests
+      run : npm test
