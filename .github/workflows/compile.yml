@@ -1,38 +1,46 @@
 name: Compile workflow
+env:
+  MYSQL_DATABASE: restapi
+  MYSQL_USER: root
+  MYSQL_PASSWORD: Ram@88970
+  MYSQL_HOST: mysql-master
+  
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
   compile:
-    env:
-      DB_NAME: ${{ secrets.DB_NAME}}
-      DB_USER: ${{ secrets.DB_USER}}
-      DB_PASSWORD: root
-      DB_HOST: '127.0.0.1'
-      DB_DIALECT: 'mysql'
-      PORT: ${{ secrets.PORT}}
-      TOKEN_SECRET: ${{ secrets.TOKEN_SECRET}}
-
+    
     runs-on: ubuntu-latest
     
+    container:
+      image: node:14.5.0-alpine
     services:
-      mysql:
-        image: mysql:5.7  # You can specify the version of MySQL you need
-        env:
-          MYSQL_ROOT_PASSWORD: root  # Set the root password here
-          MYSQL_DATABASE: ${{ secrets.DB_NAME}}
+      mysql-master:
+        image: mysql:5.7
         ports:
-          - 3306:3306
+          - 3306/tcp
+        env:
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ env.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_PASSWORD }}
+        options: >-
+          --name=mysql-master
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
        
     steps:
       - name: download the code from repo
         uses: actions/checkout@v4
 
-      - name: install node js on runner machine
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+      # - name: install node js on runner machine
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 18
       
       - name: cache 
         uses: actions/cache@v4
@@ -41,7 +49,7 @@ jobs:
           key: node-modules-cache-${{ hashFiles('**/package-lock.json') }}
 
       - name: install dependencies
-        run: npm install
+        run: npm ci
       
       # - name: configuremysql
       #   run: |
@@ -52,12 +60,15 @@ jobs:
       #      sudo systemctl status mysql
       #      sudo mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
 
-      - name: Wait for MySQL
-        run: |
-          until nc -z 127.0.0.1 3306; do
-            echo "Waiting for MySQL..."
-            sleep 1
-          done
+      # - name: Wait for MySQL
+      #   run: |
+      #     until nc -z 127.0.0.1 3306; do
+      #       echo "Waiting for MySQL..."
+      #       sleep 1
+      #     done
+
+      - name: Setup Database
+        run: "npm run migrations"
 
       - name: Run Tests
         run : npm test
