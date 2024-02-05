@@ -22,14 +22,13 @@ jobs:
     - name: Install dependencies
       run: npm install
         
-    # - name: Display .env file
-    #   run: |
-    #     echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-    #     echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-    #     echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-    #     echo "PORT=${{ secrets.PORT }}" >> .env
-    #     echo "CSVPATH='/home/admin/webapp/users.csv'" >> .env
-    #     cat .env
+    - name: setup .env file
+      run: |
+        echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        cat .env
 
        
     - name: configuremysql
@@ -38,12 +37,13 @@ jobs:
         sudo apt-get install -y curl
         sudo systemctl start mysql
         sudo systemctl status mysql
+        mysql -u root -p"${{ secrets.DB_PASSWORD }}" -e "CREATE DATABASE  restapi;"
         
 
   #  asd
 
-    - name: start app
-      run : npm start
+    - name: test app
+      run : npm test
     
 # checking CI command on PR - 1.2.3
 
