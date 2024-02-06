@@ -1,4 +1,4 @@
-name: compile
+name: compile workflow
 
 on:
   pull_request:
@@ -7,15 +7,15 @@ on:
 
 jobs:
   build:
-    name: CI
+    name: Complie check
     runs-on: ubuntu-latest
 
     services:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: restapi@123
-          MYSQL_DATABASE: restapi
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
@@ -29,14 +29,20 @@ jobs:
         with:
           node-version: 14 
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }} 
+
       - name: Install dependencies
         run: npm install
 
       - name: Setup .env file
         run: |
           echo "DB_USER=root" >> .env
-          echo "DB_PASSWORD=restapi@123" >> .env
-          echo "DB_NAME=restapi" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_HOST=127.0.0.1" >> .env
           echo "PORT=3000" >> .env
 
